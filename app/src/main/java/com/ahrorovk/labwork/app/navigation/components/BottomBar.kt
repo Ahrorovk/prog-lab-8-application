@@ -15,7 +15,7 @@ import com.ahrorovk.labwork.core.Routes
 fun LabWorkBottomBar(navController: NavController) {
     BottomNavigation(
         backgroundColor = White.copy(alpha = 0.95F),
-        contentColor = MaterialTheme.colorScheme.onBackground
+        contentColor = MaterialTheme.colorScheme.primary
     ) {
         bottomNavDestinations.forEach { navItem ->
             BottomNavItem(navController = navController, item = navItem)

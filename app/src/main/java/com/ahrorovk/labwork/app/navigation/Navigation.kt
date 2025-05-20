@@ -1,6 +1,5 @@
 package com.ahrorovk.labwork.app.navigation
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,14 +8,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -53,8 +54,8 @@ import com.ahrorovk.labwork.presentation.sign_up.SignUpViewModel
 import com.ahrorovk.labwork.presentation.start.StartScreen
 import com.ahrorovk.labwork.presentation.user.UserScreen
 import com.ahrorovk.labwork.presentation.user.UserViewModel
-import kotlinx.coroutines.delay
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Navigation(
     navigationState: NavigationState,
@@ -68,6 +69,13 @@ fun Navigation(
         topBar = {
             if (doesScreenHaveTopBar(currentScreen))
                 TopAppBar(
+                    colors = TopAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        scrolledContainerColor = MaterialTheme.colorScheme.primary,
+                        navigationIconContentColor = MaterialTheme.colorScheme.onBackground,
+                        titleContentColor = MaterialTheme.colorScheme.onBackground,
+                        actionIconContentColor = MaterialTheme.colorScheme.onBackground
+                    ),
                     title = {
                         Box(
                             modifier = Modifier.fillMaxWidth(),
@@ -210,7 +218,7 @@ fun Navigation(
 
             composable(route = Routes.StartScreen.route) {
                 LaunchedEffect(navigationState.tokenState.isNotEmpty()) {
-                        onEvent(NavigationEvent.ShowLabWorks)
+                    onEvent(NavigationEvent.ShowLabWorks)
                 }
                 LaunchedEffect(navigationState) {
                     if (navigationState.response.response?.exitCode == 200) {
@@ -263,7 +271,8 @@ fun Navigation(
                 LaunchedEffect(id) {
                     viewModel.onEvent(AddEvent.OnIdChange(id))
                     if (id > 0) {
-                        navigationState.response.response?.responseObj?.filter { it.id.toInt() == id }?.last()
+                        navigationState.response.response?.responseObj?.filter { it.id.toInt() == id }
+                            ?.last()
                             ?.let { AddEvent.OnLabWorkChange(it) }?.let { viewModel.onEvent(it) }
                     }
                 }

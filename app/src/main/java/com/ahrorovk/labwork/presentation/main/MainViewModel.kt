@@ -5,7 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ahrorovk.labwork.core.Resource
 import com.ahrorovk.labwork.data.local.dataStore.DataStoreManager
+import com.ahrorovk.labwork.data.model.RemoveByIdRequest
 import com.ahrorovk.labwork.domain.state.LabWorkResponseState
+import com.ahrorovk.labwork.domain.state.ResponseState
+import com.ahrorovk.labwork.domain.use_case.lab_work.RemoveByIdUseCase
 import com.ahrorovk.labwork.domain.use_case.lab_work.ShowLabWorksUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +22,8 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val dataStoreManager: DataStoreManager,
-    private val showLabWorksUseCase: ShowLabWorksUseCase
+    private val showLabWorksUseCase: ShowLabWorksUseCase,
+    private val removeByIdUseCase: RemoveByIdUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(MainState())
     val state = _state.stateIn(
@@ -46,6 +50,18 @@ class MainViewModel @Inject constructor(
                         labWorkResponseState = event.responseState
                     )
                 }
+            }
+
+            is MainEvent.OnSelectedIdChange -> {
+                _state.update {
+                    it.copy(
+                        selectedLabWorkId = event.id
+                    )
+                }
+            }
+
+            MainEvent.RemoveById -> {
+                removeById()
             }
 
             else -> Unit
@@ -78,6 +94,41 @@ class MainViewModel @Inject constructor(
                         )
                     }
                     Log.i("TAG", "SUCCESS-> ${result.data}\n${_state.value.labWorkResponseState}")
+                }
+            }
+        }.launchIn(viewModelScope)
+    }
+
+    private fun removeById() {
+        removeByIdUseCase.invoke(
+            _state.value.tokenState,
+            RemoveByIdRequest(_state.value.selectedLabWorkId)
+        ).onEach { result ->
+            when (result) {
+                is Resource.Error<*> -> {
+                    _state.update {
+                        it.copy(
+                            responseState = ResponseState(error = result.message.toString())
+                        )
+                    }
+                }
+
+                is Resource.Loading<*> -> {
+                    _state.update {
+                        it.copy(
+                            responseState = ResponseState(loading = true)
+                        )
+                    }
+                }
+
+                is Resource.Success<*> -> {
+                    _state.update {
+                        it.copy(
+                            responseState = ResponseState(response = result.data)
+                        )
+                    }
+                    showLabWorks()
+                    Log.i("TAG", "SUCCESS-> ${result.data}\n${_state.value.responseState}")
                 }
             }
         }.launchIn(viewModelScope)

@@ -23,7 +23,12 @@ fun MainScreen(
             response.responseObj?.let { resp ->
                 LazyColumn {
                     items(resp) { labWork ->
-                        LabWorkItem(labWork = labWork) {
+                        LabWorkItem(
+                            labWork = labWork,
+                            onLongClick = {
+                                onEvent(MainEvent.OnSelectedLabWorkIdChange(labWork.id.toInt()))
+                                onEvent(MainEvent.RemoveById)
+                            }) {
                             onEvent(MainEvent.OnSelectedLabWorkIdChange(labWork.id.toInt()))
                         }
                     }
