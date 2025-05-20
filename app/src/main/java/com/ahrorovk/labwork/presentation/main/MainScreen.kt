@@ -26,7 +26,7 @@ fun MainScreen(
                         LabWorkItem(
                             labWork = labWork,
                             onLongClick = {
-                                onEvent(MainEvent.OnSelectedLabWorkIdChange(labWork.id.toInt()))
+                                onEvent(MainEvent.OnSelectedIdChange(labWork.id.toInt()))
                                 onEvent(MainEvent.RemoveById)
                             }) {
                             onEvent(MainEvent.OnSelectedLabWorkIdChange(labWork.id.toInt()))
